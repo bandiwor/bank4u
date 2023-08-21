@@ -1,0 +1,11 @@
+.MainContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .container {
+    margin-top: 2.5vh;
+    width: min(var(--content-width), 100vw);
+  }
+}

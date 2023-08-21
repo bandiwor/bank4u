@@ -1,0 +1,10 @@
+.Login {
+  width: 80%;
+  @media screen and (max-width: 426px) {
+    width: 100%;
+  }
+
+  .submit_button {
+    width: 100%;
+  }
+}

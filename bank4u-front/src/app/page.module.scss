@@ -1,0 +1,55 @@
+.Page {
+  .card {
+    background-image: linear-gradient(251deg, rgba(90,69,122,1) 4%, rgba(0,108,27,1) 14%, rgba(134,117,0,1) 24%, rgba(0,93,119,1) 37%, rgba(78,0,0,1) 57%, rgba(126,0,130,1) 75%, rgba(0,119,61,1) 89%, rgba(0,136,100,1) 97%);
+    border-radius: 10px;
+
+    .header {
+      background-color: black;
+      border-radius: 10px 10px 0 0;
+      padding: 1rem;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .content {
+      color: black;
+      padding: 1rem;
+      display: flex;
+
+      .text {
+        flex: 1;
+        color: #adadad;
+
+        h1 {
+          padding-bottom: 1rem;
+          font-size: 1.25rem;
+        }
+      }
+
+      .image {
+        flex: 1;
+
+        & > img {
+          width: 100%;
+          border-radius: 10px;
+        }
+      }
+    }
+
+    .footer {
+      border-radius: 0 0 10px 10px;
+      background-color: rgba(0,0,0,.1);
+      padding: 1rem;
+      text-align: center;
+
+      .get_started {
+        display: block;
+        background-image: linear-gradient(251deg, rgba(104,205,66,1) 8%, rgba(153,102,255,1) 30%, rgba(117,83,242,1) 50%, rgba(184,68,231,1) 66%, rgba(230,100,148,1) 94%);
+        border-radius: 1rem;
+        padding: 1rem;
+        width: 100%;
+        box-shadow: 1px 1px 5px rgba(0,0,0,.25);
+      }
+    }
+  }
+}
