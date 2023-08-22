@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import LoginUserDto from './dto/login-user.dto';
 import RegisterUserDto from './dto/register-user.dto';
@@ -20,7 +20,9 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   signUp(@Body() signUpDto: RegisterUserDto) {
-    console.log(signUpDto);
+    if ((signUpDto.telephone.length === 1 && signUpDto.password.length >= 8 && signUpDto.username.length >= 4)) {
+      throw new BadRequestException()
+    }
     return this.authService.signUp(signUpDto.username, signUpDto.telephone, signUpDto.password);
   }
 

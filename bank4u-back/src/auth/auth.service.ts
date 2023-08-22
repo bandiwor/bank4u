@@ -1,37 +1,37 @@
 import {Injectable, UnauthorizedException, ConflictException} from '@nestjs/common';
 import {UsersService} from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { CryptService } from '../crypt/crypt.service';
+import { TokenService } from '../token/token.service';
 
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private tokenService: TokenService,
     private cryptService: CryptService
   ) {
   }
 
   async signIn(telephone: string, pass: string) {
+    console.log(telephone);
     const user = await this.usersService.findOne(telephone);
 
     if (!user || !(await this.cryptService.matchPassword(pass, user.password))) {
+      console.log('sd');
       throw new UnauthorizedException();
     }
 
-    const payload = {sub: user.id, username: user.name, telephone: user.telephone};
-    return {
-      access_token: await this.jwtService.signAsync(payload, {
-        secret: jwtConstants.secret,
-        expiresIn: jwtConstants.accessTokenExpires
-      }),
-      refresh_token: await this.jwtService.signAsync(payload, {
-        secret: jwtConstants.refreshSecret,
-        expiresIn: jwtConstants.refreshTokenExpires
-      })
-    };
+    const tokenPairs = await this.tokenService.generateTokenPairs({
+      sub: user.id,
+      username: user.name,
+      telephone: user.telephone
+    })
+
+    await this.tokenService.setUserRefreshToken(user.id, tokenPairs.refresh_token);
+
+    return tokenPairs;
   }
 
   async signUp(username: string, telephone: string, password: string) {
@@ -40,29 +40,34 @@ export class AuthService {
       throw new ConflictException();
     }
 
-    const hashedPassword = await this.cryptService.hashPassword(password);
-    await this.usersService.create({name: username, telephone, password: hashedPassword});
+    await this.usersService.create({
+      name: username,
+      telephone,
+      password: await this.cryptService.hashPassword(password),
+    });
 
     return {
       ok: true
     }
   }
 
-  async refresh(refreshToken: string) {
-    try {
-      const {sub, username, telephone} = await this.jwtService.verifyAsync(refreshToken, {
-        secret: jwtConstants.refreshSecret
-      })
-
-      const payload = {sub, username, telephone};
-      return {
-        access_token: await this.jwtService.signAsync(payload, {
-          secret: jwtConstants.secret,
-          expiresIn: jwtConstants.accessTokenExpires
-        })
-      };
-    } catch (error) {
+  async refresh(token: string) {
+    // Getting and decode JWT
+    const decodedRefresh = await this.tokenService.decodeRefreshToken(token);
+    if (!decodedRefresh) {
       throw new UnauthorizedException();
     }
+
+    // Find user with that ID
+    const {refreshToken, id, telephone, name} = await this.usersService.findById(decodedRefresh.sub);
+
+    if (refreshToken !== token) {
+      throw new UnauthorizedException();
+    }
+
+    const tokenPairs = await this.tokenService.generateTokenPairs({telephone, username: name, sub: id});
+    await this.tokenService.setUserRefreshToken(id, tokenPairs.refresh_token);
+
+    return tokenPairs;
   }
 }

@@ -13,8 +13,8 @@ export class UsersController {
   async profile(@Res() response: Response, @Req() request: Request) {
     const user = request['user'];
 
-    const {password, ...profile} = await this.userService.findOne(user.telephone)
+    const {password, refreshToken, ...profile} = await this.userService.findOne(user.telephone)
 
-    response.send({profile})
+    response.send(profile)
   }
 }
